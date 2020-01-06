@@ -1,0 +1,29 @@
+{
+  "name": "cass",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "carlosmvs <carlosmanoelti@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "node_1": "nodemon src/server.js 3001 http://localhost:3001",
+    "node_2": "nodemon src/server.js 3002 http://localhost:3002",
+    "node_3": "nodemon src/server.js 3003 http://localhost:3003",
+    "node_4": "nodemon src/server.js 3004 http://localhost:3004",
+    "node_5": "nodemon src/server.js 3005 http://localhost:3005"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongodb": "^3.4.0",
+    "mongoose": "^5.8.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5",
+    "sha256": "^0.2.0",
+    "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2",
+    "sucrase": "^3.10.1"
+  }
+}
