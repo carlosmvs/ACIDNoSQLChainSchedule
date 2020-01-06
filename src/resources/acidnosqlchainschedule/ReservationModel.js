@@ -5,9 +5,9 @@ const ReservationSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  establishmentId: {
+  recipientId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Establishment'
+    ref: 'Recipient'
   },
   datesReserved: {
     type: Array

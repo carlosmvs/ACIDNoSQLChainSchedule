@@ -99,7 +99,7 @@ class ACIDNoSQLChainController {
 	// broadcast transaction
 	async storeBroadcastTransaction(req, res) {
 		const newTransaction = ACIDNoSQLChain.createNewTransaction(
-			req.body.title, req.body.price, req.body.date, req.body.userId, req.body.establishmentId,
+			req.body.title, req.body.price, req.body.date, req.body.senderId, req.body.recipientId,
 			req.body.amount, req.body.sender, req.body.recipient);
 		ACIDNoSQLChain.addTransactionToPendingTransactions(newTransaction);
 		const requestPromises = [];
@@ -145,7 +145,7 @@ class ACIDNoSQLChainController {
 		let sender = ""
 		let recipient = req.headers.host
 		ACIDNoSQLChain.pendingTransactions.forEach(e => {
-			sender = e.userId
+			sender = e.senderId
 		})
 
 		const lastBlock = ACIDNoSQLChain.getLastBlock();
@@ -195,7 +195,7 @@ class ACIDNoSQLChainController {
 		let arrayBlockHash = []
 		let reservation = {}
 		let newBlockTransactions = newBlock.transactions.filter(e => {
-			return e.userId != undefined
+			return e.senderId != undefined
 		})
 		let blockchain = await ACIDNoSQLChainBlockModel.find()
 		blockchain.forEach(e => {

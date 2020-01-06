@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const EstablishmentSchema = new mongoose.Schema({
+const RecipientSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
@@ -11,4 +11,4 @@ const EstablishmentSchema = new mongoose.Schema({
   }
 })
 
-module.exports = mongoose.model('Establishment', EstablishmentSchema)
+module.exports = mongoose.model('Recipient', RecipientSchema)

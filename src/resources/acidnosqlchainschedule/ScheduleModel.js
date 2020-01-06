@@ -10,13 +10,13 @@ const ScheduleSchema = new mongoose.Schema({
   date: {
     type: String
   },
-  userId: {
+  senderId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'Sender'
   },
-  establishmentId: {
+  recipientId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Establishment'
+    ref: 'Recipient'
   },
   createdAt: {
     type: Date,
