@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const RecipientSchema = new mongoose.Schema({
+const ClinicalSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
@@ -11,4 +11,4 @@ const RecipientSchema = new mongoose.Schema({
   }
 })
 
-module.exports = mongoose.model('Recipient', RecipientSchema)
+module.exports = mongoose.model('Clinical', ClinicalSchema)

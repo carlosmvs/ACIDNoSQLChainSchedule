@@ -4,17 +4,15 @@ const routesBlockchain = new Router()
 
 import ACIDNoSQLChainController from './ACIDNoSQLChainController'
 
-routesBlockchain.post('/blockchain', ACIDNoSQLChainController.storeBlockchain)
+routesBlockchain.post('/blockchain/mongo', ACIDNoSQLChainController.storeBlockchainMongo)
 
-routesBlockchain.get('/blockchain/server', ACIDNoSQLChainController.indexBlockchainServer)
+routesBlockchain.get('/blockchain/mongo', ACIDNoSQLChainController.indexBlockchainMongo)
 
 routesBlockchain.get('/blockchain', ACIDNoSQLChainController.indexBlockchain)
 
 routesBlockchain.post('/node', ACIDNoSQLChainController.storeNode)
 
 routesBlockchain.post('/node/multiple', ACIDNoSQLChainController.storeNodeMultiple)
-
-routesBlockchain.get('/node', ACIDNoSQLChainController.indexNode)
 
 routesBlockchain.post('/node/broadcast', ACIDNoSQLChainController.storeBroadcastNode)
 
@@ -28,10 +26,21 @@ routesBlockchain.get('/mine', ACIDNoSQLChainController.indexMine)
 
 routesBlockchain.get('/consensu', ACIDNoSQLChainController.indexConsensu)
 
-routesBlockchain.get('/block/:blockHash', ACIDNoSQLChainController.getBlockByBlockchain)
 
-routesBlockchain.get('/transaction/:transactionId', ACIDNoSQLChainController.getTransactionByTransactionId)
+routesBlockchain.post('/patients', ACIDNoSQLChainController.storePatient)
+routesBlockchain.post('/clinicals', ACIDNoSQLChainController.storeClinical)
 
-routesBlockchain.get('/address/:address', ACIDNoSQLChainController.getAddress)
+routesBlockchain.post('/appointments', ACIDNoSQLChainController.storeAppointment)
+routesBlockchain.get('/appointments', ACIDNoSQLChainController.indexTransference)
+routesBlockchain.put('/appointments/:name', ACIDNoSQLChainController.updateAppointment)
+routesBlockchain.delete('/appointments/:id', ACIDNoSQLChainController.destroyTransference)
+
+routesBlockchain.post('/registrys', ACIDNoSQLChainController.storeRegistry)
+
+
+
+
+
+
 
 export default routesBlockchain
