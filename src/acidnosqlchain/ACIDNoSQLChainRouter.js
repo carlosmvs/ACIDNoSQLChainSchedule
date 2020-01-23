@@ -8,7 +8,7 @@ routesBlockchain.post('/blockchain/mongo', ACIDNoSQLChainController.storeBlockch
 
 routesBlockchain.get('/blockchain/mongo', ACIDNoSQLChainController.indexBlockchainMongo)
 
-routesBlockchain.get('/blockchain', ACIDNoSQLChainController.indexBlockchain)
+routesBlockchain.get('/blockchain/server', ACIDNoSQLChainController.indexBlockchainServer)
 
 routesBlockchain.post('/node', ACIDNoSQLChainController.storeNode)
 
@@ -27,15 +27,14 @@ routesBlockchain.get('/mine', ACIDNoSQLChainController.indexMine)
 routesBlockchain.get('/consensu', ACIDNoSQLChainController.indexConsensu)
 
 
-routesBlockchain.post('/patients', ACIDNoSQLChainController.storePatient)
-routesBlockchain.post('/clinicals', ACIDNoSQLChainController.storeClinical)
+routesBlockchain.post('/users', ACIDNoSQLChainController.storeUser)
+routesBlockchain.post('/sellers', ACIDNoSQLChainController.storeSeller)
 
-routesBlockchain.post('/appointments', ACIDNoSQLChainController.storeAppointment)
-routesBlockchain.get('/appointments', ACIDNoSQLChainController.indexTransference)
-routesBlockchain.put('/appointments/:name', ACIDNoSQLChainController.updateAppointment)
-routesBlockchain.delete('/appointments/:id', ACIDNoSQLChainController.destroyTransference)
+routesBlockchain.get('/reserves', ACIDNoSQLChainController.indexReserve)
+routesBlockchain.put('/reserves/:id', ACIDNoSQLChainController.updateReserve)
+routesBlockchain.delete('/reserves/:id', ACIDNoSQLChainController.destroyReserve)
 
-routesBlockchain.post('/registrys', ACIDNoSQLChainController.storeRegistry)
+routesBlockchain.post('/changes', ACIDNoSQLChainController.storeChange)
 
 
 

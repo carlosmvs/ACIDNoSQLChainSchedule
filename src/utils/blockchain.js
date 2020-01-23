@@ -28,16 +28,15 @@ Blockchain.prototype.getLastBlock = function () {
 	return this.chain[this.chain.length - 1];
 };
 
-Blockchain.prototype.createNewTransaction = function (name, patientId, clinicalId, date,
-	amount, sender, recipient) {
+Blockchain.prototype.createNewTransaction = function (name, userId, sellerId, date,
+	rate, mine) {
 	const newTransaction = {
 		name: name,
-		patientId: patientId,
-		clinicalId: clinicalId,
+		userId: userId,
+		sellerId: sellerId,
 		date: date,
-		amount: amount,
-		sender: sender,
-		recipient: recipient,
+		rate: rate,
+		mine: mine,
 		transactionId: uuid().split('-').join('')
 	};
 	return newTransaction;

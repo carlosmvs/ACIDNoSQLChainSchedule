@@ -4,10 +4,10 @@ import rp from 'request-promise'
 import uuid from 'uuid/v1'
 const nodeAddress = uuid().split('-').join('');
 import ACIDNoSQLChainBlockModel from './ACIDNoSQLChainBlockModel'
-import ACIDNoSQLChainSchedulePatientModel from '../acidnosqlchainschedule/ACIDNoSQLChainSchedulePatientModel'
-import ACIDNoSQLChainScheduleClinicalModel from '../acidnosqlchainschedule/ACIDNoSQLChainScheduleClinicalModel'
-import ACIDNoSQLChainScheduleAppointmentModel from '../acidnosqlchainschedule/ACIDNoSQLChainScheduleAppointmentModel'
-import ACIDNoSQLChainScheduleRegistryModel from '../acidnosqlchainschedule/ACIDNoSQLChainScheduleRegistryModel'
+import ACIDNoSQLChainScheduleUserModel from '../acidnosqlchainschedule/ACIDNoSQLChainScheduleUserModel'
+import ACIDNoSQLChainScheduleSellerModel from '../acidnosqlchainschedule/ACIDNoSQLChainScheduleSellerModel'
+import ACIDNoSQLChainScheduleReserveModel from '../acidnosqlchainschedule/ACIDNoSQLChainScheduleReserveModel'
+import ACIDNoSQLChainScheduleChangeModel from '../acidnosqlchainschedule/ACIDNoSQLChainScheduleChangeModel'
 const ACIDNoSQLChain = new Blockchain();
 
 class ACIDNoSQLChainController {
@@ -30,7 +30,7 @@ class ACIDNoSQLChainController {
 	}
 
 	// get entire blockchain current in server
-	async indexBlockchain(req, res) {
+	async indexBlockchainServer(req, res) {
 		res.send(ACIDNoSQLChain);
 	}
 
@@ -97,8 +97,8 @@ class ACIDNoSQLChainController {
 	// broadcast transaction
 	async storeBroadcastTransaction(req, res) {
 		const newTransaction = ACIDNoSQLChain.createNewTransaction(
-			req.body.name, req.body.patientId, req.body.clinicalId, req.body.date,
-			1.5, nodeAddress);
+			req.body.name, req.body.userId, req.body.sellerId, req.body.date,
+			10, nodeAddress);
 		ACIDNoSQLChain.addTransactionToPendingTransactions(newTransaction);
 		const requestPromises = [];
 		ACIDNoSQLChain.networkNodes.forEach(networkNodeUrl => {
@@ -211,7 +211,7 @@ class ACIDNoSQLChainController {
 					method: 'POST',
 					body: {
 						rate: 1.5,
-						sender: "00",
+						user: "00",
 						mine: nodeAddress
 					},
 					json: true
@@ -227,7 +227,7 @@ class ACIDNoSQLChainController {
 		let blocks = []
 		let arrayBlockHash = []
 		let newBlockTransactions = newBlock.transactions.filter(e => {
-			return e.patientId != undefined
+			return e.userId != undefined
 		})
 		let blockchain = await ACIDNoSQLChainBlockModel.find()
 		blockchain.forEach(e => {
@@ -242,140 +242,117 @@ class ACIDNoSQLChainController {
 		newBlock.index = arrayMax(blocks) + 1
 		newBlock.previousBlockHash = arrayBlockHash.pop()
 
-		//Add transactions Blockchain + ACID
-		const session = await mongoose.startSession({ readConcern: { level: 'snapshot' }, writeConcern: { w: 'majority' } })
-		session.startTransaction()
+
+		const sessionBlockchain = await mongoose.startSession()
+		sessionBlockchain.startTransaction({
+			readConcern: { level: 'snapshot' },
+			writeConcern: { w: 'majority' }
+		})
 		try {
-			await ACIDNoSQLChainBlockModel.create([{ block: newBlock }]).then(() => {
-				newBlockTransactions.forEach(e => {
-					ACIDNoSQLChainScheduleAppointmentModel.create(e).then(() => { })
+			await ACIDNoSQLChainBlockModel.create([{ block: newBlock }],
+				{ session: sessionBlockchain }).then(() => {
+					newBlockTransactions.forEach(async e => {
+						ACIDNoSQLChainScheduleReserveModel.createCollection().then(() => {
+							ACIDNoSQLChainScheduleReserveModel.create(e).then(() => { })
+						})
+					})
 				})
-			}, { session })
-			await session.commitTransaction()
+			await sessionBlockchain.commitTransaction()
 		} catch (err) {
-			await session.abortTransaction()
+			await sessionBlockchain.abortTransaction()
 		} finally {
-			session.endSession()
+			sessionBlockchain.endSession()
 		}
 	}
 
-	async storePatient(req, res) {
+	async storeUser(req, res) {
 		try {
-			const patient = await ACIDNoSQLChainSchedulePatientModel.create(req.body)
-			res.json(patient)
+			const user = await ACIDNoSQLChainScheduleUserModel.create(req.body)
+			res.json(user)
 		} catch (err) {
 			throw err
 		}
 	}
 
-	async storeClinical(req, res) {
+	async storeSeller(req, res) {
 		try {
-			const clinical = await ACIDNoSQLChainScheduleClinicalModel.create(req.body)
-			res.json(clinical)
+			const seller = await ACIDNoSQLChainScheduleSellerModel.create(req.body)
+			res.json(seller)
 		} catch (err) {
 			throw err
 		}
 	}
 
+	async indexReserve(req, res) {
+		try {
+			const reserve = await ACIDNoSQLChainScheduleReserveModel.find()
+			res.json(reserve)
+		} catch (err) {
+			throw err
+		}
+	}
 
-	async updateAppointment(req, res) {
-		const sessionAppointment = await mongoose.startSession()
-		sessionAppointment.startTransaction({
+	async updateReserve(req, res) {
+		const sessionReserve = await mongoose.startSession()
+		sessionReserve.startTransaction({
+			readConcern: { level: 'snapshot' }, writeConcern: { w: 'majority' }
+		})
+		try {
+			let user = await ACIDNoSQLChainScheduleUserModel.findById(req.body.userId)
+			let reserve = await ACIDNoSQLChainScheduleReserveModel.findById(req.params.id)
+			user.score = 5
+			reserve.status = 'Agendado'
+			await ACIDNoSQLChainScheduleUserModel.findByIdAndUpdate(req.body.userId, user).session(sessionReserve)
+			await ACIDNoSQLChainScheduleReserveModel.findByIdAndUpdate(req.params.id, reserve).session(sessionReserve)
+			await sessionReserve.commitTransaction()
+			res.json(reserve)
+		} catch (err) {
+			await sessionReserve.abortTransaction()
+		} finally {
+			sessionReserve.endSession()
+		}
+	}
+
+	async storeChange(req, res) {
+		const sessionChange = await mongoose.startSession()
+		sessionChange.startTransaction({
 			readConcern: { level: 'snapshot' },
 			writeConcern: { w: 'majority' }
 		})
 		try {
-			let appointments = await ACIDNoSQLChainScheduleAppointmentModel.find().session(sessionAppointment)
-			let doctors = appointments.filter(e => {
-				return e.name == req.params.name
-			})
-			doctors.forEach(async e => {
-				e.date = req.body.date
-				if (e.name == req.params.name) {
-					await ACIDNoSQLChainScheduleAppointmentModel.updateMany({ date: e.date }).session(sessionAppointment)
-					await sessionAppointment.commitTransaction()
-				}
-			})
-			res.json({ message: "OK" })
+			let reserve = await ACIDNoSQLChainScheduleReserveModel.findById(req.body.reserveId)
+			ACIDNoSQLChainScheduleChangeModel.createCollection()
+			let change = await ACIDNoSQLChainScheduleChangeModel.create([{
+				reserveId: reserve.reserveId,
+				oldDate: reserve.date, newDate: req.body.newDate
+			}], { session: sessionChange })
+			reserve.date = req.body.newDate
+			await ACIDNoSQLChainScheduleReserveModel.findByIdAndUpdate(reserve._id, reserve).session(sessionChange)
+			await sessionChange.commitTransaction()
+			res.json(change)
 		} catch (err) {
-			await sessionAppointment.abortTransaction()
+			await sessionChange.abortTransaction()
 		} finally {
-			sessionAppointment.endSession()
+			sessionChange.endSession()
 		}
 	}
 
-
-	async storeRegistry(req, res) {
-		const sessionRegistry = await mongoose.startSession()
-		sessionRegistry.startTransaction({
+	async destroyReserve(req, res) {
+		const sessionReserve = await mongoose.startSession()
+		sessionReserve.startTransaction({
 			readConcern: { level: 'snapshot' },
 			writeConcern: { w: 'majority' }
 		})
 		try {
-			let appointments = await ACIDNoSQLChainScheduleAppointmentModel.find().session(sessionRegistry)
-			let appointment = appointments.filter(e => {
-				return e.patientId == req.body.patientId && e.date == req.body.oldDate
-					&& req.body.clinicalId == e.clinicalId
-			})
-			appointment.forEach(e => {
-				e.date = req.body.newDate
-			})
-			await ACIDNoSQLChainScheduleAppointmentModel.findByIdAndUpdate(appointment[0]._id, appointment[0])
-				.session(sessionRegistry)
-			let registry = await ACIDNoSQLChainScheduleRegistryModel.create([req.body], { sessionRegistry })
-			await sessionRegistry.commitTransaction()
-			res.json(registry)
-		} catch (err) {
-			await sessionRegistry.abortTransaction()
-		} finally {
-			sessionRegistry.endSession()
-		}
-	}
-
-	async criaRegistro(req, res) {
-		try {
-			let c = await ACIDNoSQLChainScheduleRegistryModel.create(req.body)
-			res.json(c)
-		} catch (err) {
-			throw err
-		}
-	}
-
-	async storeAppointment(req, res) {
-		try {
-			let appointment = await ACIDNoSQLChainScheduleAppointmentModel.create(req.body)
-			res.json(appointment)
-		} catch (err) {
-			throw err
-		}
-	}
-
-	async destroyTransference(req, res) {
-		const sessionTransference = await mongoose.startSession()
-		sessionTransference.startTransaction({ readConcern: { level: 'snapshot' }, writeConcern: { w: 'majority' } })
-		try {
-			await ACIDNoSQLChainTransferenceModel.findByIdAndDelete(req.params.id).session(sessionTransference)
-			await sessionTransference.commitTransaction()
+			await ACIDNoSQLChainReserveModel.findByIdAndDelete(req.params.id).session(sessionReserve)
+			await sessionReserve.commitTransaction()
 			res.send()
 		} catch (err) {
-			await sessionTransference.abortTransaction()
+			await sessionReserve.abortTransaction()
 		} finally {
-			sessionTransference.endSession()
-		}
-	}
-
-	async indexTransference(req, res) {
-		try {
-			const transference = await ACIDNoSQLChainTransferenceModel.find()
-			res.json(transference)
-		} catch (err) {
-			throw err
+			sessionReserve.endSession()
 		}
 	}
 }
-
-
-
-
 
 export default new ACIDNoSQLChainController()
