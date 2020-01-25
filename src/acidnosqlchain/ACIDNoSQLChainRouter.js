@@ -34,7 +34,7 @@ routesBlockchain.get('/reserves', ACIDNoSQLChainController.indexReserve)
 routesBlockchain.put('/reserves/:id', ACIDNoSQLChainController.updateReserve)
 routesBlockchain.delete('/reserves/:id', ACIDNoSQLChainController.destroyReserve)
 
-routesBlockchain.post('/changes', ACIDNoSQLChainController.storeChange)
+routesBlockchain.put('/changes/:id', ACIDNoSQLChainController.updateChange)
 
 
 

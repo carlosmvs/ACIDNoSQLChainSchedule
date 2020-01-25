@@ -97,7 +97,7 @@ class ACIDNoSQLChainController {
 	// broadcast transaction
 	async storeBroadcastTransaction(req, res) {
 		const newTransaction = ACIDNoSQLChain.createNewTransaction(
-			req.body.name, req.body.userId, req.body.sellerId, req.body.date,
+			req.body.title, req.body.userId, req.body.sellerId, req.body.date,
 			10, nodeAddress);
 		ACIDNoSQLChain.addTransactionToPendingTransactions(newTransaction);
 		const requestPromises = [];
@@ -302,8 +302,10 @@ class ACIDNoSQLChainController {
 			let reserve = await ACIDNoSQLChainScheduleReserveModel.findById(req.params.id)
 			user.score = 5
 			reserve.status = 'Agendado'
-			await ACIDNoSQLChainScheduleUserModel.findByIdAndUpdate(req.body.userId, user).session(sessionReserve)
-			await ACIDNoSQLChainScheduleReserveModel.findByIdAndUpdate(req.params.id, reserve).session(sessionReserve)
+			await ACIDNoSQLChainScheduleUserModel.findByIdAndUpdate(req.body.userId, user)
+				.session(sessionReserve)
+			await ACIDNoSQLChainScheduleReserveModel.findByIdAndUpdate(req.params.id, reserve)
+				.session(sessionReserve)
 			await sessionReserve.commitTransaction()
 			res.json(reserve)
 		} catch (err) {
@@ -313,14 +315,14 @@ class ACIDNoSQLChainController {
 		}
 	}
 
-	async storeChange(req, res) {
+	async updateChange(req, res) {
 		const sessionChange = await mongoose.startSession()
 		sessionChange.startTransaction({
 			readConcern: { level: 'snapshot' },
 			writeConcern: { w: 'majority' }
 		})
 		try {
-			let reserve = await ACIDNoSQLChainScheduleReserveModel.findById(req.body.reserveId)
+			let reserve = await ACIDNoSQLChainScheduleReserveModel.findById(req.params.id)
 			ACIDNoSQLChainScheduleChangeModel.createCollection()
 			let change = await ACIDNoSQLChainScheduleChangeModel.create([{
 				reserveId: reserve.reserveId,
