@@ -329,7 +329,8 @@ class ACIDNoSQLChainController {
 				oldDate: reserve.date, newDate: req.body.newDate
 			}], { session: sessionChange })
 			reserve.date = req.body.newDate
-			await ACIDNoSQLChainScheduleReserveModel.findByIdAndUpdate(reserve._id, reserve).session(sessionChange)
+			await ACIDNoSQLChainScheduleReserveModel.findByIdAndUpdate(reserve._id, reserve)
+				.session(sessionChange)
 			await sessionChange.commitTransaction()
 			res.json(change)
 		} catch (err) {
