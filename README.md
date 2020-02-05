@@ -1,2 +1,2 @@
-# ACIDNoSQLChainSchedule
-Repositório do Framework ACIDNoSQLChainSchedule que é uma extensão do Framework ACIDNoSQLChain especializado em registro de agendamentos na área de saúde.
+# MongoChainScheduleHealth
+Repositório do Framework MongoChainScheduleHealth que é uma extensão do Framework MongoChain, especializado em registro de agendamentos em clínicas de saúde.
