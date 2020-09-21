@@ -17,7 +17,7 @@ const AppointmentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: 'Solicitado'
+    default: 'requested'
   },
   createdAt: {
     type: Date,

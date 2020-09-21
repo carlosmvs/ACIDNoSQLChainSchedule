@@ -7,10 +7,6 @@ const PatientSchema = new mongoose.Schema({
   email: {
     type: String
   },
-  score: {
-    type: Number,
-    default: 0
-  },
   createdAt: {
     type: Date,
     default: Date.now

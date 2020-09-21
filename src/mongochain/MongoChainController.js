@@ -94,8 +94,7 @@ class MongoChainController {
 	// broadcast transaction
 	async storeBroadcastTransaction(req, res) {
 		const newTransaction = MongoChain.createNewTransaction(
-			req.body.title, req.body.patientId, req.body.clinicId, req.body.date,
-			10, nodeAddress);
+			req.body.title, req.body.patientId, req.body.clinicId, req.body.date);
 		MongoChain.addTransactionToPendingTransactions(newTransaction);
 		const requestPromises = [];
 		MongoChain.networkNodes.forEach(networkNodeUrl => {
@@ -207,9 +206,6 @@ class MongoChainController {
 					uri: MongoChain.currentNodeUrl + '/transaction/broadcast',
 					method: 'POST',
 					body: {
-						rate: 1.5,
-						patient: "00",
-						mine: nodeAddress
 					},
 					json: true
 				};

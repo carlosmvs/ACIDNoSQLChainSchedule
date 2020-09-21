@@ -112,7 +112,7 @@ class MongoChainEntityController {
       let patient = await MongoChainPatientModel.findById(req.body.patientId)
       let appointment = await MongoChainAppointmentModel.findById(req.params.id)
       patient.score = 5
-      appointment.status = 'Agendado'
+      appointment.status = 'scheduled'
       await MongoChainPatientModel.findByIdAndUpdate(req.body.patientId, patient)
         .session(sessionAppointment)
       await MongoChainAppointmentModel.findByIdAndUpdate(req.params.id, appointment)
@@ -140,7 +140,7 @@ class MongoChainEntityController {
         oldDate: appointment.date, newDate: req.body.newDate
       }], { session: sessionChange })
       appointment.date = req.body.newDate
-      appointment.status = 'Reagendado'
+      appointment.status = 'rescheduled'
       await MongoChainAppointmentModel.findByIdAndUpdate(appointment._id, appointment)
         .session(sessionChange)
       await sessionChange.commitTransaction()
